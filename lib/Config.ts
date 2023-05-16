@@ -32,6 +32,8 @@ export default class Config {
   private static fromCommandLineArguments() {
     const opts = options.parse().opts();
 
+
+    //in case the config passed in is incomplete object of Config
     return this.of({
       goodsCode: opts.goodsCode,
       placeCode: opts.placeCode,

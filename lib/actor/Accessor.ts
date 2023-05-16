@@ -19,7 +19,11 @@ export type AfterReserveScripts = {
  * 인터파크에 요청 보낼 때에 사용하는 친구입니다.
  * 계정 정보가 있으면 로그인할 수 있습니다.
  * 쿠키 저장소를 가지고 있습니다.
+ * This is the friend I use to send requests to Interpark.
+ * If you have account information, you can log in.
+ * I have a cookie store.
  */
+//accessor访问器，寄存器
 export default class Accessor {
   constructor(
     private readonly config: Config
@@ -31,31 +35,37 @@ export default class Accessor {
 
   /**
    * 좌석을 잡는 데에 사용될 세션입니다.
+   * This is the session that will be used to hold the seat.
    * 테스트 결과 한 번 만들어 놓으면 계속 가는 것 같으니,
    * 따로 새로고침은 안 합니다.
+   * Once the test results are made, it seems to keep going, so we don't refresh it separately.(????)
    * @private
    */
   private session: Session;
 
   /**
    * 새로고침합니다. 로그인 후 세션 ID와 OneStopModel 까지 다시 받아옵니다.
+   * Reloads. Log in and get the session ID and OneStopModel again.
    */
   async reload(): Promise<void> {
     await this.login();
 
     this.session = await this.generateSession();
 
-    console.log(`Accessor 리로드 완료!`);
+    console.log(`Accessor 리로드 완료!(Reload complete)`);
   }
 
   /**
    * 로그인합니다. 결과는 쿠키에 담깁니다.
+   * Log in. The results will be included in the cookie.
    */
   async login(): Promise<void> {
     // 로그인 폼 화면에 진입합니다. 쿠키가 우수수 떨어집니다.
+    // Enter the login form page. Cookies are removing one by one.
     await this.axios.get(`https://accounts.interpark.com/authorize/ticket-mweb?origin=http%3A%2F%2Fmticket.interpark.com%2FMyTicket%2F&postProc=NONE`);
 
     // 로그인 요청을 쏩니다. 쿠키도 들고 갑니다.
+    //Sends a login request. Bring cookies, too.
     const loginResult = await this.axios.post(`https://accounts.interpark.com/login/submit`, qs.stringify({
       userId: this.config.username,
       userPwd: this.config.password
@@ -69,16 +79,19 @@ export default class Accessor {
     const callbackUrl = loginResult.data.callback_url;
 
     if (resultCode !== '00') {
-      throw new Error(`로그인 실패!! 자세한 응답은 요기: ${JSON.stringify(loginResult.data)}`);
+      throw new Error(`로그인 실패!! 자세한 응답은 요기(Login failed!! For more information, please): ${JSON.stringify(loginResult.data)}`);
     }
 
     // 주어진 콜백 URL로 들어가면 또 쿠키가 우수수 떨어지는데, 그중에 id_token이 있습니다.
+    // If you go to the given callback URL, the number of cookies removes again, including id_token.
     await this.axios.get(callbackUrl);
   }
 
   /**
    * 좌석 킵할때 사용될 세션 ID를 만들어옵니다.
    * 주의: 로그인이 되어 있어야(쿠키에 id_token이 숨쉬고 있어야) 합니다.
+   * Creates a session ID to be used when keeping the seat.
+   * CAUTION: You must be logged in (id_token breathing in the cookie).
    */
   async generateSession(): Promise<Session> {
     const result = await this.axios.get(
@@ -106,8 +119,9 @@ export default class Accessor {
 
   /**
    * 자리를 킵해둡니다.
+   * Keep your seat.
    *
-   * @param seat 킵할 자리.
+   * @param seat 킵할 자리.(a place to keep.)
    */
   async reserveSeat(seat: Seat): Promise<AfterReserveScripts> {
     if (this.session == null) {
@@ -139,7 +153,7 @@ export default class Accessor {
   /**
    * 브라우저 콘솔에서 실행할 예매 재개 스크립트와 예약 취소 cURL 스크립트를 만들어옵니다.
    *
-   * @param seat 예매할 자리.
+   * @param seat 예매할 자리.(A place to reserve.)
    * @private
    */
   private generateScripts(seat: Seat): AfterReserveScripts {

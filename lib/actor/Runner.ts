@@ -11,9 +11,10 @@ export default class Runner {
     Config.parseCommandLineArguments();
 
     console.log(Config.current);
-    console.log('시작');
+    console.log('시작 Start!');
 
     const accessor = new Accessor(Config.current);
+    //todo： what is accessor
     const repo = new Repository(accessor);
 
     const catcher = new Catcher(Config.current, accessor);
@@ -22,8 +23,9 @@ export default class Runner {
     const worker = new Worker(repo, catcher, notifier);
 
     while (true) {
+      //todo: need to investigate
       await worker.tick();
-
+      //sleep for certain milliseconds configured in command line
       await sleep(Config.current.pollIntervalMillis);
     }
   }
