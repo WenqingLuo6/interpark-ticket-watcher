@@ -15,6 +15,8 @@ export default class Worker {
   private working: Boolean = false;
   private previousSeats: Seat[] = [];
 
+
+  //run this function each interval endlessly
   async tick() {
     let currentSeats: Seat[] = [];
 
@@ -44,6 +46,7 @@ export default class Worker {
         await this.notifier.notifySeatCatchResults(catchResults);
       }
 
+      //detect any change in seats
       const detector = new Detector(this.previousSeats, currentSeats);
       if (detector.hasChanges) {
         process.stdout.write('_');

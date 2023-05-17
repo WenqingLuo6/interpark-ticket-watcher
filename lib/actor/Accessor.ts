@@ -202,16 +202,20 @@ fetch('https://moticket.interpark.com/OneStop/Seat', {
 
   /**
    * 좌석맵 HTML 쓸어옵니다.
+   * Sweep the seat map HTML.
    */
   async getSeatMapDetail(): Promise<string> {
     const querystring = qs.stringify({
       GoodsCode: this.config.goodsCode,
       PlaceCode: this.config.placeCode,
       PlaySeq: this.config.playSeq,
+      // don't know what are these for?
       Block: 'RGN001',
       TmgsOrNot: 'D2006'
     });
 
+
+    //probably need to add sessionID in the queryString
     const result = await this.axios.get(`https://aspseat-ticket.interpark.com/Booking/App/MOSeatDetail.asp?${querystring}`);
 
     return result.data;
